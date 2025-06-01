@@ -48,7 +48,7 @@ export function PricingSection() {
                     </div>
                   )}
                   <CardTitle className="font-headline text-2xl text-foreground mt-4">{pkg.name}</CardTitle>
-                  <CardDescription className="text-4xl font-bold text-primary my-4">{pkg.price}</CardDescription>
+                  <CardDescription className="text-3xl sm:text-4xl font-bold text-primary my-4">{pkg.price}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <ul className="space-y-2 text-muted-foreground">
