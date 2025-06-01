@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { submitContactFormAction } from "@/app/actions";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -54,17 +56,40 @@ export function ContactForm() {
 
   async function onSubmit(data: ContactFormValues) {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-
-    console.log("Form submitted:", data);
-    toast({
-      title: "Message Sent!",
-      description: "Thanks for reaching out. We'll get back to you shortly.",
-      variant: "default",
-    });
-    form.reset();
+    try {
+      const result = await submitContactFormAction(data);
+      if (result.success) {
+        toast({
+          title: "Message Sent!",
+          description: "Thanks for reaching out. We'll get back to you shortly.",
+          variant: "default",
+        });
+        form.reset();
+      } else {
+        toast({
+          title: "Error Sending Message",
+          description: result.message || "Could not submit the form. Please try again.",
+          variant: "destructive",
+        });
+        // Optionally, you can handle specific field errors if your server action returns them
+        // if (result.errors) {
+        //   Object.entries(result.errors).forEach(([field, messages]) => {
+        //     if (messages && messages.length > 0) {
+        //       form.setError(field as keyof ContactFormValues, { type: "server", message: messages[0] });
+        //     }
+        //   });
+        // }
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -115,7 +140,7 @@ export function ContactForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Your Requirement</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value || ""}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select what you need" />
