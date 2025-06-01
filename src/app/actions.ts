@@ -2,6 +2,7 @@
 "use server";
 
 import * as z from "zod";
+import nodemailer from "nodemailer";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -15,25 +16,45 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export async function submitContactFormAction(data: ContactFormValues) {
   try {
-    // Validate data on the server side as well
     const validatedData = contactFormSchema.parse(data);
 
-    console.log("CONTACT FORM SUBMISSION RECEIVED:");
-    console.log("Name:", validatedData.name);
-    console.log("Email:", validatedData.email);
-    console.log("Phone:", validatedData.phone || "Not provided");
-    console.log("Requirement:", validatedData.requirement);
-    console.log("Message:", validatedData.message);
-    
-    // In a real application, you would add your email sending logic here.
-    // For example, using Nodemailer or an email API service like SendGrid.
-    // e.g., await sendEmail({ to: 'yourgmail@example.com', subject: 'New Contact Form Submission', body: ... });
+    // Email sending logic
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_EMAIL,
+        pass: process.env.GMAIL_APP_PASSWORD, // Use the App Password here
+      },
+    });
 
-    return { success: true, message: "Form submitted successfully!" };
+    const mailOptions = {
+      from: `"SiteQuick Contact Form" <${process.env.GMAIL_EMAIL}>`, // Sender address
+      to: process.env.GMAIL_EMAIL, // List of receivers (your email address)
+      subject: "New Contact Form Submission from SiteQuick Personal", // Subject line
+      html: `
+        <h1>New Contact Form Submission</h1>
+        <p><strong>Name:</strong> ${validatedData.name}</p>
+        <p><strong>Email:</strong> ${validatedData.email}</p>
+        <p><strong>Phone:</strong> ${validatedData.phone || "Not provided"}</p>
+        <p><strong>Requirement:</strong> ${validatedData.requirement}</p>
+        <p><strong>Message:</strong></p>
+        <p>${validatedData.message.replace(/\n/g, '<br>')}</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    
+    console.log("Contact form submitted and email sent successfully.");
+    return { success: true, message: "Form submitted successfully! We'll be in touch soon." };
+
   } catch (error) {
-    console.error("Error submitting contact form:", error);
+    console.error("Error submitting contact form or sending email:", error);
     if (error instanceof z.ZodError) {
       return { success: false, message: "Invalid form data.", errors: error.flatten().fieldErrors };
+    }
+    // Check if the error is from nodemailer (e.g., authentication failure)
+    if (error instanceof Error && 'code' in error && (error as any).code === 'EAUTH') {
+        return { success: false, message: "Could not send email. Please check server configuration (email credentials)." };
     }
     return { success: false, message: "An unexpected error occurred. Please try again." };
   }
