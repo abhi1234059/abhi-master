@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Abhi Dankhara - SiteQuick Personal Website
 
 This repository contains the source code for the SiteQuick Personal website, created by Abhi Dankhara.
@@ -79,3 +80,6 @@ Refer to `src/app/actions.ts` for details on email configuration (if re-enabled)
 
 ## Deployment
 This app can be deployed to various platforms that support Next.js, such as Firebase App Hosting, Vercel, Netlify, etc. Refer to `apphosting.yaml` for Firebase App Hosting configuration examples.
+=======
+# abhi_master
+>>>>>>> ba4a975b61df7e3cf95c6756ad74d7bdc1085297
