@@ -20,7 +20,12 @@ export async function submitContactFormAction(data: ContactFormValues) {
 
     console.log("Contact form data received:", validatedData);
 
-    // Email sending logic (temporarily disabled)
+    // Email sending logic (temporarily disabled until App Password is set up)
+    //
+    // Ensure you have GMAIL_EMAIL and GMAIL_APP_PASSWORD in your .env file
+    // For GMAIL_APP_PASSWORD, generate an App Password from your Google Account security settings.
+    // Do NOT use your regular Gmail password.
+    //
     // const transporter = nodemailer.createTransport({
     //   service: "gmail",
     //   auth: {
@@ -45,12 +50,11 @@ export async function submitContactFormAction(data: ContactFormValues) {
     // };
 
     // await transporter.sendMail(mailOptions);
-    
     // console.log("Contact form submitted and email sent successfully.");
     // return { success: true, message: "Form submitted successfully! We'll be in touch soon." };
 
-    console.log("Contact form submitted (email sending is temporarily disabled for diagnostics).");
-    return { success: true, message: "Form submitted (diagnostics mode). We'll be in touch soon." };
+    console.log("Contact form submitted (email sending is temporarily disabled pending Google App Password setup).");
+    return { success: true, message: "Form submitted (email disabled). We'll be in touch soon." };
 
   } catch (error) {
     console.error("Error submitting contact form:", error);
